@@ -1,8 +1,8 @@
-//
-// Created by kaito on 16.02.2024.
-//
-
 #ifndef HTTPINC_ERRORCODES_H
 #define HTTPINC_ERRORCODES_H
 
-#endif //HTTPINC_ERRORCODES_H
+#define WINSOCK_INIT_ERR 101
+#define SOCK_CREATE_ERR 102
+#define CONN_ERR 103
+
+#endif HTTPINC_ERRORCODES_H
