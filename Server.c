@@ -13,13 +13,21 @@ short ServerInit(const struct Server *server) {
     }
 
     // return error code if binding fails
-    if (bind(server->socket, (const struct sockaddr *) &server->info, sizeof(server->info))) {
+    if (bind(server->socket, (const struct sockaddr *) &server->info, sizeof(struct sockaddr_in)) == SOCKET_ERROR) {
+        printf("Binding failed with error code : %d", WSAGetLastError());
+        return 1;
+    }
 
+    // return error code if listening fails
+    if (listen(server->socket, SOMAXCONN) == SOCKET_ERROR) {
+        printf("Listen failed with error code : %d", WSAGetLastError());
+        return LISTEN_ERR;
     }
 
     return 0;
 }
 
-short ServerListen(const struct Server *server) {
-    return 0;
+void ServerClose(const struct Server* pServer) {
+    closesocket(pServer->socket);
+    WSACleanup();
 }

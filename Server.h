@@ -11,6 +11,6 @@ struct Server {
 };
 
 short ServerInit(const struct Server *server);
-short ServerListen(const struct Server *server);
+void ServerClose(const struct Server* pServer);
 
-#endif HTTPINC_SERVER_H
+#endif //HTTPINC_SERVER_H
