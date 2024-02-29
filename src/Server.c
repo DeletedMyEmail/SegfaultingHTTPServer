@@ -2,18 +2,13 @@
 #include "../includes/ErrorCodes.h"
 
 short ServerInit(Server *pServer) {
-    // return error code if WinSock startuo fails
-    if (WSAStartup(MAKEWORD(2, 2), &pServer->wsaData)){
-        return WINSOCK_INIT_ERR;
-    }
-
     // return error code if provided socket is invalid
     if (pServer->socket == INVALID_SOCKET) {
         return SOCK_CREATE_ERR;
     }
 
     // return error code if binding fails
-    if (bind(pServer->socket, (const struct sockaddr *) &pServer->info, sizeof(struct sockaddr_in)) == SOCKET_ERROR) {
+    if (bind(pServer->socket, (const struct sockaddr *) &pServer->addr, sizeof(struct sockaddr_in)) == SOCKET_ERROR) {
         printf("Binding failed with error code : %d\n", WSAGetLastError());
         return 1;
     }

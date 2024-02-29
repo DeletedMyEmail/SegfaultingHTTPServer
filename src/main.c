@@ -1,21 +1,37 @@
 #include <stdio.h>
 #include "../includes/LinkedList.h"
 #include "../includes/Server.h"
+#include "../includes/ErrorCodes.h"
 
-int main(int argc, char const** argv){
+#define SERVER_PORT 8080
 
-    /*struct sockaddr_in c;
-    ClientNode* head = createNode(0, c);
+void createServer(Server* pServer) {
+    // port/addr setup
+    pServer->addr.sin_family = AF_INET;
+    pServer->addr.sin_addr.s_addr = INADDR_ANY;
+    pServer->addr.sin_port = htons(8080 );
 
-    push(head, 2, c);
-    pushAt(head, 1, 1, c);
+    pServer->socket = socket(AF_INET, SOCK_STREAM, 0);
 
-    printf("Length: %d", length(head));
-    printf("\nval: %llu", get(head, 1)->socket);*/
+    if (pServer->socket == INVALID_SOCKET) {
+        printf("Could not create socket : %d\n", WSAGetLastError());
+    }
 
+    ServerInit(pServer);
+}
 
+int main(int argc, char const** argv) {
+
+    // --------------------------- Server
     Server serverInfo;
-    ServerInit(&serverInfo);
+    // return error code if WinSock startuo fails
+    if (WSAStartup(MAKEWORD(2, 2), &serverInfo.wsaData)){
+        return WINSOCK_INIT_ERR;
+    }
+    createServer(&serverInfo);
+
+    // --------------------------- Client
+    ClientNode* clients = NULL;
 
     struct sockaddr_in client;
     int c = sizeof(struct sockaddr_in);
@@ -37,8 +53,11 @@ int main(int argc, char const** argv){
     else {
         buffer[bytes_received] = '\0';
     }
+    printf("\n\nReceived: %s", buffer);
 
-    printf("Received: %s", buffer);
+    // send data, ok responds
+    char *response = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!";
+    send(new_socket, response, strlen(response), 0);
 
     ServerClose(&serverInfo);
 

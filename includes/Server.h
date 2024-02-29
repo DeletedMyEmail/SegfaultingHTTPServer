@@ -7,7 +7,7 @@
 typedef struct Server {
     WSADATA wsaData;
     SOCKET socket;
-    struct sockaddr_in info;
+    struct sockaddr_in addr;
 } Server;
 
 short ServerInit(Server *pServer);
