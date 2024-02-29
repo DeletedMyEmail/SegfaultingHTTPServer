@@ -1,16 +1,16 @@
 #ifndef HTTPINC_SERVER_H
 #define HTTPINC_SERVER_H
 
+#include <winsock2.h>
 #include <stdio.h>
-#include <WinSock2.h>
 
-struct Server {
+typedef struct Server {
     WSADATA wsaData;
     SOCKET socket;
     struct sockaddr_in info;
-};
+} Server;
 
-short ServerInit(const struct Server *server);
-void ServerClose(const struct Server* pServer);
+short ServerInit(Server *pServer);
+void ServerClose(Server* pServer);
 
 #endif //HTTPINC_SERVER_H
