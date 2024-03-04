@@ -10,7 +10,8 @@ typedef struct Server {
     struct sockaddr_in addr;
 } Server;
 
-short ServerInit(Server *pServer);
+void ServerCreate(Server* pServer);
+short ServerSetup(Server *pServer);
 void ServerClose(Server* pServer);
 
 #endif //HTTPINC_SERVER_H

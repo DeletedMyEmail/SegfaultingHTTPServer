@@ -3,18 +3,18 @@
 
 #include <winsock2.h>
 
-typedef struct ClientNode {
-    SOCKET socket;
-    struct sockaddr_in address;
-    struct ClientNode* next;
-} ClientNode;
+typedef struct ListNode {
+    void* val;
+    struct ListNode* next;
+} Node;
 
-ClientNode* createNode(SOCKET pSocket, struct sockaddr_in pAddress);
-ClientNode* get(ClientNode* pHead, unsigned int pPosition);
-unsigned int length(ClientNode* pHead);
-void push(ClientNode* pHead, SOCKET pSocket, struct sockaddr_in pAddress);
-void pushAt(ClientNode* pHead, int pPosition, SOCKET pSocket, struct sockaddr_in pAddress);
-void pop(ClientNode* pHead);
-void popAt(ClientNode* pHead, int pPosition);
+Node* createNode(void* pVal, size_t pSize);
+Node* get(Node* pHead, unsigned int pPosition);
+unsigned int length(Node* pHead);
+void push(Node* pHead, void* pVal, size_t pSize);
+void pushAt(Node* pHead, int pPosition, void* pVal, size_t pSize);
+Node* pop(Node** pHead);
+Node* popAt(Node** pHead, unsigned int pPosition);
+void foreach(Node* pHead, void (*pCallback)(Node* pNode));
 
 #endif //HTTPINC_LINKEDLIST_H

@@ -1,7 +1,17 @@
 #include "../includes/Server.h"
 #include "../includes/ErrorCodes.h"
 
-short ServerInit(Server *pServer) {
+#define SERVER_PORT 8080
+
+void ServerCreate(Server* pServer) {
+    // port/addr setup
+    pServer->addr.sin_family = AF_INET;
+    pServer->addr.sin_addr.s_addr = INADDR_ANY;
+    pServer->addr.sin_port = htons(SERVER_PORT );
+    pServer->socket = socket(AF_INET, SOCK_STREAM, 0);
+}
+
+short ServerSetup(Server *pServer) {
     // return error code if provided socket is invalid
     if (pServer->socket == INVALID_SOCKET) {
         return SOCK_CREATE_ERR;
