@@ -3,8 +3,14 @@
 #include "../includes/Server.h"
 #include "../includes/ErrorCodes.h"
 #include "../includes/Client.h"
+#include "../includes/HashTable.h"
+
+void onGet(Client pClient, HTTPRequest pRequest) {
+    puts("get");
+}
 
 int main(int argc, char const** argv) {
+    /*
     // --------------------------- Server
     Server server;
     // create server if WinSock init is successful
@@ -56,6 +62,31 @@ int main(int argc, char const** argv) {
     }
 
     ServerClose(&server);
+
+    return 0;*/
+    // Erstellen Sie eine neue Hashtabelle
+    ht* table = ht_create();
+    if (table == NULL) {
+        printf("Failed to create hash table\n");
+        return 1;
+    }
+
+    // Fügen Sie einige Schlüssel mit demselben Hashwert hinzu
+    const char* key1 = "collision1";
+    const char* key2 = "collision1";
+    const char* key3 = "collision2";
+
+    printf("%s\n", ht_set(table, key1, "value1"));
+    printf("%s\n", ht_set(table, key2, "value2"));
+    printf("%s\n", ht_set(table, key3, "value3"));
+
+    // Überprüfen Sie die Werte
+    printf("Key: %s, Value: %s\n", key1, (char*)ht_get(table, key1));
+    printf("Key: %s, Value: %s\n", key2, (char*)ht_get(table, key2));
+    printf("Key: %s, Value: %s\n", key3, (char*)ht_get(table, key3));
+
+    // Zerstören Sie die Hashtabelle
+    ht_destroy(table);
 
     return 0;
 }

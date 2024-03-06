@@ -6,15 +6,16 @@
 typedef struct ListNode {
     void* val;
     struct ListNode* next;
-} Node;
+} ListNode;
 
-Node* createNode(void* pVal, size_t pSize);
-Node* get(Node* pHead, unsigned int pPosition);
-unsigned int length(Node* pHead);
-void push(Node* pHead, void* pVal, size_t pSize);
-void pushAt(Node* pHead, int pPosition, void* pVal, size_t pSize);
-Node* pop(Node** pHead);
-Node* popAt(Node** pHead, unsigned int pPosition);
-void foreach(Node* pHead, void (*pCallback)(Node* pNode));
+ListNode* createNode(void* pVal, size_t pSize);
+ListNode* get(ListNode* pHead, unsigned int pPosition);
+unsigned int length(ListNode* pHead);
+void push(ListNode* pHead, void* pVal, size_t pSize);
+void pushAt(ListNode* pHead, int pPosition, void* pVal, size_t pSize);
+ListNode* pop(ListNode** pHead);
+ListNode* popAt(ListNode** pHead, unsigned int pPosition);
+void foreach(ListNode* pHead, void (*pCallback)(ListNode* pNode));
+void llFree(ListNode* pList);
 
 #endif //HTTPINC_LINKEDLIST_H

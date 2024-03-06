@@ -2,8 +2,12 @@
 #include "../includes/Client.h"
 #include <stdio.h>
 
-void readDataFromClients(Node* pClients) {
-    Node* currentNode = pClients;
+HTTPRequest parseHTTP(const char* pRequest) {
+
+}
+
+void readDataFromClients(ListNode* pClients) {
+    ListNode* currentNode = pClients;
     unsigned int i = 0;
 
     while (currentNode != NULL) {
@@ -24,14 +28,14 @@ void readDataFromClients(Node* pClients) {
                 continue;
             }
         }
-            // closed
+        // close
         else if (bytes_received == 0) {
             currentNode = currentNode->next;
             free(popAt(&pClients, i));
             printf("Connection closed %d\n", i);
             continue;
         }
-            // read
+        // read
         else {
             buffer[bytes_received] = '\0';
             printf("\n\nReceived: %s\n", buffer);
