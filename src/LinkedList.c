@@ -1,124 +1,144 @@
 #include "../includes/LinkedList.h"
+#include <stdio.h>
 
-ListNode* createNode(void* pVal, size_t pSize) {
-    ListNode* node = malloc(pSize + sizeof(int*));
+LinkedList* llCreate() {
+    LinkedList* list = malloc(sizeof(LinkedList));
+    list->head = NULL;
+    list->tail = NULL;
+    list->length = 0;
+
+    return list;
+}
+
+ListNode* createNode(void* pVal) {
+    ListNode* node = malloc(sizeof(ListNode));
     node->val = pVal;
     node->next = NULL;
 
     return node;
 }
 
-void push(ListNode* pHead, void* pVal, size_t pSize) {
-    ListNode* current = pHead;
+void llPush(LinkedList* pList, void* pVal) {
+    ListNode* head = pList->head;
 
-    while (current->next != NULL) {
-        current = current->next;
+    ListNode* node = malloc(sizeof(ListNode));
+    node->val = pVal;
+    node->next = NULL;
+
+    if (head == NULL) {
+        pList->head = node;
+        pList->tail = node;
+        pList->length = 1;
     }
-
-    current->next = malloc(pSize + sizeof(int*));
-    current->next->val = pVal;
-    current->next->next = NULL;
+    else {
+        pList->tail->next = (struct ListNode *) node;
+        pList->tail = node;
+        ++pList->length;
+    }
 }
 
-void pushAt(ListNode* pHead, int pPosition, void* pVal, size_t pSize) {
+void llPushAt(LinkedList* pList, int pPosition, void* pVal) {
     if (pPosition == 0) {
-        ListNode* temp = pHead->next;
-        pHead->next = malloc(pSize + sizeof(int*));
-        pHead->next->next = temp;
-        return;
+        ListNode* temp = pList->head;
+        pList->head = createNode(pVal);
+        pList->head->next = (struct ListNode *) temp;
+        ++pList->length;
+
+        if (pList->length == 1) {
+            pList->tail = pList->head;
+        }
     }
-
-    ListNode* predecessorNode = get(pHead, pPosition - 1);
-    ListNode* nextNode = predecessorNode->next;
-
-    predecessorNode->next = malloc(pSize + sizeof(int*));
-    predecessorNode->next->next = nextNode;
+    else {
+        ListNode* predecessorNode = llGet(pList, pPosition - 1);
+        printf("->%p\n",predecessorNode->val);
+        ListNode* nextNode = (ListNode *) predecessorNode->next;
+        predecessorNode->next = (struct ListNode *) createNode(pVal);
+        predecessorNode->next->next = (struct ListNode *) nextNode;
+        ++pList->length;
+    }
 }
 
-ListNode* popAt(ListNode** pHead, unsigned int pPosition) {
-    if (pPosition == 0) {
-        ListNode* temp = *pHead;
-        *pHead = NULL;
+ListNode* llPopAt(LinkedList* pList, unsigned int pPosition) {
+    if (pPosition == 0 && pList->length == 1) {
+        ListNode* temp = pList->head;
+        pList->head = NULL;
+        pList->tail = NULL;
+        --pList->length;
+        return temp;
+    }
+    else if (pPosition == 0 && pList->length > 0) {
+        ListNode* temp = pList->head;
+        pList->head = (ListNode *) temp->next;
+        --pList->length;
+        return temp;
+    }
+    else {
+        ListNode* predecessorNode = llGet(pList, pPosition - 1);
+        ListNode* nodeToPop = predecessorNode->next;
+        predecessorNode->next = nodeToPop->next;
+        --pList->length;
+        return nodeToPop;
+    }
+}
+
+ListNode* llPop(LinkedList* pList) {
+    ListNode* head = pList->head;
+
+    if (head == NULL) {
+        return NULL;
+    }
+    else if (head->next == NULL) {
+        ListNode* temp = pList->head;
+        pList->head = NULL;
+        pList->tail =  NULL;
+        pList->length = 0;
         return temp;
     }
 
-    ListNode* predecessorNode = get(*pHead, pPosition - 1);
-    /*if (predecessorNode == NULL) {
-        return;
-    }*/
+    ListNode* fLast = llGet(pList, pList->length-2);
+    ListNode* temp = pList->tail;
+    pList->tail = fLast;
+    fLast->next = NULL;
+    --pList->length;
 
-    ListNode* nodeToPop = predecessorNode->next;
-    /*if (nodeToPop == NULL) {
-        return;
-    }*/
-
-    predecessorNode->next = nodeToPop->next;
-    return nodeToPop;
-}
-
-ListNode* pop(ListNode** pHead) {
-    ListNode* current = *pHead;
-    if (current->next == NULL) {
-        ListNode* temp = *pHead;
-        *pHead = NULL;
-        return temp;
-    }
-
-    while (current->next != NULL) {
-        current = current->next;
-    }
-
-    ListNode* temp = current->next;
-    current->next = NULL;
     return temp;
 }
 
-ListNode* get(ListNode* pHead, unsigned int pPosition) {
-    ListNode* current = pHead;
-
-    while (current->next != NULL && pPosition > 0) {
-        current = current->next;
-        --pPosition;
-    }
-    if (pPosition > 0) {
+ListNode* llGet(LinkedList* pList, unsigned int pPosition) {
+    if (pPosition > pList->length) {
         return NULL;
+    }
+
+    ListNode* current = pList->head;
+    for (size_t i = 0; i < pPosition; ++i) {
+        current = current->next;
     }
 
     return current;
 }
 
-unsigned int length(ListNode* pHead) {
-    if (pHead == NULL) {
-        return 0;
-    }
-
-    unsigned int counter = 1;
-    ListNode* current = pHead;
-
-    while (current->next != NULL) {
-        ++counter;
-        current = current->next;
-    }
-
-    return counter;
-}
-
-void foreach(ListNode* pHead, void (*pCallback)(ListNode* pNode)) {
-    ListNode* current = pHead;
+void llForeach(LinkedList* pList, void (*pCallback)(ListNode* pNode)) {
+    ListNode* current = pList->head;
 
     while (current != NULL) {
         pCallback(current);
-        current = current->next;
+        current = (ListNode *) current->next;
     }
 }
 
-void llFree(ListNode* pList) {
-    ListNode* nextNode = pList;
-
-    while (pList != NULL) {
-        nextNode = pList->next;
-        free(pList->val);
+void llFree(LinkedList* pList) {
+    if (pList->head == NULL) {
         free(pList);
-        pList = nextNode;
+        return;
     }
+
+    ListNode* current = pList->head;
+    do {
+        ListNode* next = current->next;
+        free(current->val);
+        free(current);
+
+        current = next;
+    } while (current != NULL);
+    free(pList);
 }

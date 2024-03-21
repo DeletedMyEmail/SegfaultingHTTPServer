@@ -24,14 +24,14 @@ void readDataFromClients(ListNode* pClients) {
                 printf("Reading failed: %d - Closing socket\n", WSAGetLastError());
                 printf("%p\n", currentNode);
                 currentNode = currentNode->next;
-                free(popAt(&pClients, i));
+                free(llPopAt(&pClients, i));
                 continue;
             }
         }
         // close
         else if (bytes_received == 0) {
             currentNode = currentNode->next;
-            free(popAt(&pClients, i));
+            free(llPopAt(&pClients, i));
             printf("Connection closed %d\n", i);
             continue;
         }
