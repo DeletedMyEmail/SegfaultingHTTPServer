@@ -5,6 +5,6 @@
 #include "HTTPRequest.h"
 
 HTTPRequest parseHTTP(const char* pRequest);
-void readDataFromClients(ListNode* pClients);
+void readDataFromClients(LinkedList* pClients);
 
 #endif //HTTPINC_SOCKETIO_H

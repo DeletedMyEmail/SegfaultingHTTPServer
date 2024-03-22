@@ -68,20 +68,31 @@ void HashTableTest1() {
     htSet(ht, key2, i2);
     htSet(ht, key3, i3);
 
-    printf("Get 1: %d\nGet 2: %d\nGet 2: %d\nLength: %d\n",
+    printf("Get 1: %d\nGet 2: %d\nGet 3: %d\nLength: %d\n",
            *(int*)htGet(ht, key1) == 1,
            *(int*)htGet(ht, key2) == 2,
            *(int*)htGet(ht, key3) == 3,
            ht->length == 3
     );
 
+    htRemove(ht, key2);
+
+    printf("Len after remove: %d\nGet 2 after remove: %d\n",
+           ht->length == 2,
+           htGet(ht, key2) == NULL
+    );
+
+    printf("Get 1: %d\nGet 3: %d\nLength: %d\n",
+           *(int*)htGet(ht, key1) == 1,
+           *(int*)htGet(ht, key3) == 3,
+           ht->length == 2
+    );
+
     htDelete(ht);
 }
 
 int main(int argc, char const** argv) {
-    //LinkedListTest1();
-    HashTableTest1();
-    /*
+
     // --------------------------- Server
     Server server;
     // create server if WinSock init is successful
@@ -93,7 +104,7 @@ int main(int argc, char const** argv) {
     ServerSetup(&server);
 
     // --------------------------- Client handling
-    Node* clients = NULL;
+    LinkedList* clients = llCreate();
 
     struct sockaddr_in socketAddr;
     int c = sizeof(struct sockaddr_in);
@@ -120,10 +131,10 @@ int main(int argc, char const** argv) {
             newClient->socket = newSocket;
             newClient->addr = socketAddr;
 
-            if (clients == NULL) {
-                clients = createNode(newClient, sizeof(Client));
+            if (clients->length == 0) {
+                clients->head->val = newClient;
             } else {
-                push(clients, newClient, sizeof(Client));
+                llPush(clients, newClient);
             }
 
             printf("Connection accepted\n");
@@ -133,9 +144,6 @@ int main(int argc, char const** argv) {
     }
 
     ServerClose(&server);
-
-    return 0;*/
-    // Erstellen Sie eine neue Hashtabelle
 
     return 0;
 }

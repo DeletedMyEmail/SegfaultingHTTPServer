@@ -20,8 +20,8 @@ typedef struct {
 HashTable* htCreate(size_t pCapacity);
 void* htGet(HashTable* pTable, const char* pKey);
 void htSet(HashTable* pTable, const char* pKey, void* pVal);
+void htDelete(HashTable* pTable);
+void htRemove(HashTable* pTable, const char* pKey);
 void htDoubleCapacity(HashTable* pTable);
-
-__attribute__((unused)) void htDelete(HashTable* pTable);
 
 #endif // _HT_H

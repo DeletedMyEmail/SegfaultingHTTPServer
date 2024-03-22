@@ -1,6 +1,5 @@
 #include <stdint-gcc.h>
 #include <malloc.h>
-#include <stdio.h>
 #include "../includes/HashTable.h"
 
 #define FNV_OFFSET 14695981039346656037U
@@ -100,10 +99,16 @@ void setEntryInBucket(HashTable* pTable, size_t pBucketIndex, const char* pKey, 
     LinkedList* bucket = pTable->overflowBuckets[pBucketIndex];
     ListNode* currentNode = bucket->head;
 
+    if (currentNode == NULL) {
+        llPush(bucket, createTableEntry(pKey, pVal));
+        ++pTable->length;
+        return;
+    }
+
     while (currentNode != NULL) {
         HashTableEntry* entry = (HashTableEntry*) currentNode->val;
 
-        if (strcmp(entry->key, pKey) != 0) {
+        if (strcmp(entry->key, pKey) == 0) {
             entry->val = pVal;
             return;
         }
@@ -112,9 +117,40 @@ void setEntryInBucket(HashTable* pTable, size_t pBucketIndex, const char* pKey, 
             ++pTable->length;
             return;
         }
-        else {
-            currentNode= currentNode->next;
+
+        currentNode = currentNode->next;
+    }
+}
+
+void deleteEntryInBucket(HashTable* pTable, size_t pBucketIndex, const char* pKey) {
+    LinkedList* bucket = pTable->overflowBuckets[pBucketIndex];
+    ListNode* currentNode = bucket->head;
+    ListNode* lastNode = NULL;
+
+    if (currentNode == NULL) {
+        return;
+    }
+
+    while (currentNode != NULL ) {
+        HashTableEntry* entry = (HashTableEntry*) currentNode->val;
+
+        if (strcmp(entry->key, pKey) == 0) {
+            if (currentNode->next != NULL && lastNode != NULL) {
+                lastNode->next = currentNode->next;
+            }
+
+            free(entry->val);
+            free(entry->key);
+            free(entry);
+            free(currentNode);
+            entry = NULL;
+            --pTable->length;
+
+            return;
         }
+
+        lastNode = currentNode;
+        currentNode = currentNode->next;
     }
 }
 
@@ -123,7 +159,7 @@ void* getEntryInBucket(LinkedList* pBucket, const char* pKey) {
 
     while (currentNode != NULL) {
         HashTableEntry* entry = (HashTableEntry*) currentNode->val;
-        if (strcmp(entry->key, pKey) != 0) {
+        if (strcmp(entry->key, pKey) == 0) {
             return entry->val;
         }
         currentNode = currentNode->next;
@@ -160,5 +196,25 @@ void htSet(HashTable* pTable, const char* pKey, void* pVal) {
     }
     else {
         setEntryInBucket(pTable, index, pKey, pVal);
+    }
+}
+
+void htRemove(HashTable* pTable, const char* pKey) {
+    size_t index = hash_key(pKey) % pTable->capacity;
+    HashTableEntry* entry = pTable->entries[index];
+
+    if (entry == NULL) {
+        return;
+    }
+
+    if (entry->key == pKey) {
+        free(entry->val);
+        free(entry->key);
+        free(entry);
+        entry = NULL;
+        --pTable->length;
+    }
+    else {
+        deleteEntryInBucket(pTable, index, pKey);
     }
 }
