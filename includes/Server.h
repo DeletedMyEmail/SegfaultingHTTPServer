@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include "Client.h"
 #include "HTTPRequest.h"
+#include "LinkedList.h"
 
 typedef struct Server {
     WSADATA wsaData;
@@ -16,5 +17,7 @@ typedef struct Server {
 void ServerCreate(Server* pServer);
 short ServerSetup(Server *pServer);
 void ServerClose(Server* pServer);
+void readDataFromClients(LinkedList* pClients);
+int ServerRun(Server* pServer);
 
 #endif //HTTPINC_SERVER_H

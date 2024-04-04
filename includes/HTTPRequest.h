@@ -5,4 +5,6 @@ typedef struct HTTPRequest {
 
 } HTTPRequest;
 
+HTTPRequest parseHTTP(const char* pRequest);
+
 #endif //HTTPINC_HTTPREQUEST_H

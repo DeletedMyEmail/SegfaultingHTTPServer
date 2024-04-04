@@ -50,7 +50,6 @@ void llPushAt(LinkedList* pList, int pPosition, void* pVal) {
     }
     else {
         ListNode* predecessorNode = llGet(pList, pPosition - 1);
-        printf("->%p\n",predecessorNode->val);
         ListNode* nextNode = (ListNode *) predecessorNode->next;
         predecessorNode->next = (struct ListNode *) createNode(pVal);
         predecessorNode->next->next = (struct ListNode *) nextNode;
@@ -59,6 +58,10 @@ void llPushAt(LinkedList* pList, int pPosition, void* pVal) {
 }
 
 ListNode* llPopAt(LinkedList* pList, unsigned int pPosition) {
+    if (pList->length <= pPosition) {
+        return NULL;
+    }
+
     if (pPosition == 0 && pList->length == 1) {
         ListNode* temp = pList->head;
         pList->head = NULL;
@@ -66,7 +69,7 @@ ListNode* llPopAt(LinkedList* pList, unsigned int pPosition) {
         --pList->length;
         return temp;
     }
-    else if (pPosition == 0 && pList->length > 0) {
+    else if (pPosition == 0 && pList->length > 1) {
         ListNode* temp = pList->head;
         pList->head = (ListNode *) temp->next;
         --pList->length;

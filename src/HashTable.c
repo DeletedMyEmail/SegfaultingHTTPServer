@@ -1,6 +1,7 @@
 #include <stdint-gcc.h>
 #include <malloc.h>
 #include "../includes/HashTable.h"
+#include <stdio.h>
 
 #define FNV_OFFSET 14695981039346656037U
 #define FNV_PRIME 1099511628211U
@@ -17,7 +18,7 @@ static uint64_t hash_key(const char* key) {
 }
 
 void createHashTableEntries(HashTable* pTable) {
-    int capacity = pTable->capacity;
+    size_t capacity = pTable->capacity;
     HashTableEntry** entries = calloc(capacity, sizeof(HashTableEntry*));
     LinkedList** overflowBuckets = calloc(capacity, sizeof(LinkedList*));
 
@@ -60,8 +61,8 @@ void htFreeEntries(HashTableEntry** pEntries, size_t pCapacity) {
 }
 
 void htDelete(HashTable* pTable) {
-    freeOverflowBuckets(pTable->overflowBuckets, pTable->capacity);
     htFreeEntries(pTable->entries, pTable->capacity);
+    freeOverflowBuckets(pTable->overflowBuckets, pTable->capacity);
     free(pTable);
 }
 
@@ -143,7 +144,6 @@ void deleteEntryInBucket(HashTable* pTable, size_t pBucketIndex, const char* pKe
             free(entry->key);
             free(entry);
             free(currentNode);
-            entry = NULL;
             --pTable->length;
 
             return;
@@ -185,10 +185,13 @@ void* htGet(HashTable* pTable, const char* pKey) {
 void htSet(HashTable* pTable, const char* pKey, void* pVal) {
     size_t index = hash_key(pKey) % pTable->capacity;
 
+
     if (pTable->entries[index] == NULL) {
-        pTable->entries[index] = malloc(sizeof(HashTableEntry));
-        pTable->entries[index]->val = pVal;
-        pTable->entries[index]->key = (char*) pKey;
+        HashTableEntry* entry = malloc(sizeof(HashTableEntry));
+        entry->val = pVal;
+        entry->key = (char*) pKey;
+
+        pTable->entries[index] = entry;
         ++pTable->length;
     }
     else if (pTable->entries[index]->key == pKey) {
@@ -211,7 +214,7 @@ void htRemove(HashTable* pTable, const char* pKey) {
         free(entry->val);
         free(entry->key);
         free(entry);
-        entry = NULL;
+        pTable->entries[index] = NULL;
         --pTable->length;
     }
     else {

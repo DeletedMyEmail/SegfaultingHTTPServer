@@ -8,13 +8,14 @@ typedef struct ListNode {
     struct ListNode* next;
 } ListNode;
 
-typedef struct {
+typedef struct LinkedList {
     ListNode* head;
     ListNode* tail;
     size_t length;
 } LinkedList;
 
 LinkedList* llCreate();
+ListNode* createNode(void* pVal);
 ListNode* llGet(LinkedList* pList, unsigned int pPosition);
 void llPush(LinkedList* pList, void* pVal);
 void llPushAt(LinkedList* pList, int pPosition, void* pVal);

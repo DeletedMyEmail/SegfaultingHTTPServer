@@ -4,12 +4,12 @@
 #include <stddef.h>
 #include "LinkedList.h"
 
-typedef struct {
+typedef struct HashTableEntrey {
     char* key;
     void* val;
 } HashTableEntry;
 
-typedef struct {
+typedef struct HashTable {
     size_t capacity;
     size_t length;
     size_t itemSize;
