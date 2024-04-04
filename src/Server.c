@@ -85,7 +85,6 @@ int ServerRun(Server* pServer) {
 }
 
 void readDataFromClients(LinkedList* pClients) {
-    printf("Size: %zu\n", pClients->length);
     ListNode* currentNode = pClients->head;
     unsigned int i = 0;
 
