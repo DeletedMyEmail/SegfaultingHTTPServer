@@ -12,12 +12,19 @@ typedef struct Server {
     SOCKET socket;
     struct sockaddr_in addr;
     void (*onGet)(Client pClient, HTTPRequest pRequest);
+    LinkedList* requestHandler;
 } Server;
+
+typedef struct RequestHandler {
+    char* method;
+    void (*handlerFunc)(Client* pClient, HTTPRequest* pRequest);
+} RequestHandler;
 
 void ServerCreate(Server* pServer);
 short ServerSetup(Server *pServer);
 void ServerClose(Server* pServer);
-void readDataFromClients(LinkedList* pClients);
 int ServerRun(Server* pServer);
+
+void ServerOn(Server* pServer, const char* pMethod, void (*handlerFunc)(Client* pClient, HTTPRequest* pRequest));
 
 #endif //HTTPINC_SERVER_H

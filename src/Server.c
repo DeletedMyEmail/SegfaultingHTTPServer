@@ -11,6 +11,72 @@ void ServerCreate(Server* pServer) {
     pServer->socket = socket(AF_INET, SOCK_STREAM, 0);
 }
 
+
+void handleRequest(LinkedList* pRequestHandler, Client* pClient, HTTPRequest* pRequest) {
+    if (pRequestHandler == NULL) {
+        return;
+    }
+
+    ListNode* currentNode = pRequestHandler->head;
+
+    while (currentNode != NULL) {
+        RequestHandler* handler = (RequestHandler*) currentNode->val;
+        if (strcmp(handler->method, pRequest->method) == 0) {
+            handler->handlerFunc(pClient, pRequest);
+            break;
+        }
+    }
+}
+
+void readDataFromClients(LinkedList* pClients, LinkedList* pRequestHandlers) {
+    ListNode* currentNode = pClients->head;
+    unsigned int i = 0;
+
+    while (currentNode != NULL) {
+        Client* client = currentNode->val;
+        char buffer[1024];
+        int bytesReceived = recv(client->socket, buffer, sizeof(buffer) - 1, 0);
+
+        // timeout - no msg
+        if (WSAGetLastError() == WSAEWOULDBLOCK) {
+            currentNode = currentNode->next;
+        }
+            // error
+        else if (bytesReceived < 0) {
+            printf("Reading failed: %d - Closing socket\n", WSAGetLastError());
+            printf("%p\n", currentNode);
+            currentNode = currentNode->next;
+            free(llPopAt(pClients, i));
+        }
+            // close
+        else if (bytesReceived == 0) {
+            currentNode = currentNode->next;
+            free(llPopAt(pClients, i));
+            printf("Connection closed %d\n", i);
+        }
+            // read
+        else {
+            buffer[bytesReceived] = '\0';
+            handleRequest(pRequestHandlers, client, parseHTTP(buffer));
+
+            currentNode = currentNode->next;
+            ++i;
+        }
+    }
+}
+
+void ServerOn(Server* pServer, const char* pMethod, void (*handlerFunc)(Client* pClient, HTTPRequest* pRequest)) {
+    RequestHandler* handler = malloc(sizeof(RequestHandler));
+    handler->method = strdup(pMethod);
+    handler->handlerFunc= handlerFunc;
+
+    if (pServer->requestHandler == NULL) {
+        pServer->requestHandler = llCreate();
+    }
+
+    llPush(pServer->requestHandler, handler);
+}
+
 short ServerSetup(Server *pServer) {
     // return error code if provided socket is invalid
     if (pServer->socket == INVALID_SOCKET) {
@@ -78,54 +144,8 @@ int ServerRun(Server* pServer) {
             printf("Connection accepted\n");
         }
 
-        readDataFromClients(clients);
+        readDataFromClients(clients, pServer->requestHandler);
     }
 
     ServerClose(pServer);
-}
-
-void readDataFromClients(LinkedList* pClients) {
-    ListNode* currentNode = pClients->head;
-    unsigned int i = 0;
-
-    while (currentNode != NULL) {
-        Client* client = currentNode->val;
-        char buffer[1024];
-        int bytesReceived = recv(client->socket, buffer, sizeof(buffer) - 1, 0);
-
-        // timeout - no msg
-        if (WSAGetLastError() == WSAEWOULDBLOCK) {
-            currentNode = currentNode->next;
-        }
-        // error
-        else if (bytesReceived < 0) {
-            printf("Reading failed: %d - Closing socket\n", WSAGetLastError());
-            printf("%p\n", currentNode);
-            currentNode = currentNode->next;
-            free(llPopAt(pClients, i));
-        }
-        // close
-        else if (bytesReceived == 0) {
-            currentNode = currentNode->next;
-            free(llPopAt(pClients, i));
-            printf("Connection closed %d\n", i);
-        }
-        // read
-        else {
-            buffer[bytesReceived] = '\0';
-            if (bytesReceived == sizeof(buffer) -1 ) {
-                printf("Buffer full\n");
-            }
-            else {
-                printf("\n\nReceived: %s\n", buffer);
-            }
-
-            // send data, ok responds
-            char *response = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!";
-            send(client->socket, response, (int) strlen(response), 0);
-
-            currentNode = currentNode->next;
-            ++i;
-        }
-    }
 }
